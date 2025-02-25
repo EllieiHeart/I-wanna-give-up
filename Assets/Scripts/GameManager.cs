@@ -11,10 +11,12 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private AudioSource backgroundMusicSource; // Main background music
     [SerializeField] private AudioSource gameOverMusicSource;  // Game Over music
+    [SerializeField] private AudioSource buttonClickSource;  //  Button click sound source
 
     [SerializeField] private AudioClip menuMusic;
     [SerializeField] private AudioClip gameplayMusic;
     [SerializeField] private AudioClip gameOverMusic;
+    [SerializeField] private AudioClip buttonClickSound;
 
     private int score, highScore;
     public int multiplier;
@@ -91,12 +93,15 @@ public class GameManager : MonoBehaviour
 
     public void GameStart()
     {
+        
         highScoreText.SetActive(false);
         startButton.SetActive(false);
         scoreText.SetActive(true);
         Instantiate(ball, startPos, Quaternion.identity);
         canPlay = true;
 
+
+        PlayButtonClickSound();
         PlayMusic(gameplayMusic); // Switch to gameplay music
     }
 
@@ -138,4 +143,13 @@ public class GameManager : MonoBehaviour
             gameOverMusicSource.Play();
         }
     }
+
+    private void PlayButtonClickSound()
+    {
+        if (buttonClickSource != null && buttonClickSound != null)
+        {
+            buttonClickSource.PlayOneShot(buttonClickSound);
+        }
+    }
+
 }
