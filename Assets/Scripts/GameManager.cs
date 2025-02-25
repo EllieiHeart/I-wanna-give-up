@@ -5,31 +5,22 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField]
-    GameObject ball, startButton, highScoreText, scoreText, quitButton, restartButton;
+    [SerializeField] private GameObject ball, startButton, highScoreText, scoreText, quitButton, restartButton;
+    [SerializeField] private Rigidbody2D left, right;
+    [SerializeField] private Vector3 startPos;
 
-    int score, highScore;
+    [SerializeField] private AudioSource backgroundMusicSource; // Main background music
+    [SerializeField] private AudioSource gameOverMusicSource;  // Game Over music
 
-    [SerializeField]
-    Rigidbody2D left, right;
+    [SerializeField] private AudioClip menuMusic;
+    [SerializeField] private AudioClip gameplayMusic;
+    [SerializeField] private AudioClip gameOverMusic;
 
-    [SerializeField]
-    Vector3 startPos;
-
+    private int score, highScore;
     public int multiplier;
-
-    bool canPlay;
+    private bool canPlay;
 
     public static GameManager instance;
-
-    [SerializeField]
-    private AudioSource audioSource;  // Audio source for music
-
-    [SerializeField]
-    private AudioClip menuMusic; // Music before game starts
-
-    [SerializeField]
-    private AudioClip gameplayMusic; // Music during gameplay
 
     private void Awake()
     {
@@ -49,13 +40,13 @@ public class GameManager : MonoBehaviour
         highScoreText.GetComponent<Text>().text = "HighScore : " + highScore;
         canPlay = false;
 
-        // Play menu music initially
-        PlayMusic(menuMusic);
+        PlayMusic(menuMusic); // Start with menu music
     }
 
     private void Update()
     {
         if (!canPlay) return;
+
         if (Input.GetKey(KeyCode.A))
         {
             left.AddTorque(25f);
@@ -87,12 +78,15 @@ public class GameManager : MonoBehaviour
         highScoreText.SetActive(true);
         quitButton.SetActive(true);
         restartButton.SetActive(true);
+
         if (score > highScore)
         {
             PlayerPrefs.SetInt("HighScore", score);
             highScore = score;
         }
         highScoreText.GetComponent<Text>().text = "HighScore : " + highScore;
+
+        PlayGameOverMusic(); // Stop main music and play game over music
     }
 
     public void GameStart()
@@ -103,8 +97,7 @@ public class GameManager : MonoBehaviour
         Instantiate(ball, startPos, Quaternion.identity);
         canPlay = true;
 
-        // Switch to gameplay music
-        PlayMusic(gameplayMusic);
+        PlayMusic(gameplayMusic); // Switch to gameplay music
     }
 
     public void GameQuit()
@@ -122,12 +115,27 @@ public class GameManager : MonoBehaviour
 
     private void PlayMusic(AudioClip clip)
     {
-        if (audioSource != null && clip != null)
+        if (backgroundMusicSource != null && clip != null)
         {
-            audioSource.Stop(); // Stop any currently playing music
-            audioSource.clip = clip;
-            audioSource.loop = true;
-            audioSource.Play();
+            backgroundMusicSource.Stop(); // Stop current music
+            backgroundMusicSource.clip = clip;
+            backgroundMusicSource.loop = true;
+            backgroundMusicSource.Play();
+        }
+    }
+
+    private void PlayGameOverMusic()
+    {
+        if (backgroundMusicSource != null)
+        {
+            backgroundMusicSource.Stop(); // Stop gameplay music
+        }
+
+        if (gameOverMusicSource != null && gameOverMusic != null)
+        {
+            gameOverMusicSource.clip = gameOverMusic;
+            gameOverMusicSource.loop = true;
+            gameOverMusicSource.Play();
         }
     }
 }
