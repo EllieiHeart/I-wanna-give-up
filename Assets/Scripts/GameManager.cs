@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,12 +6,13 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private GameObject ball, startButton, highScoreText, scoreText, quitButton, restartButton;
-    [SerializeField] private Rigidbody2D left, right;
+    [SerializeField] private Rigidbody2D[] leftFlippers;   // Array for all left flippers
+    [SerializeField] private Rigidbody2D[] rightFlippers;  // Array for all right flippers
     [SerializeField] private Vector3 startPos;
 
     [SerializeField] private AudioSource backgroundMusicSource; // Main background music
-    [SerializeField] private AudioSource gameOverMusicSource;  // Game Over music
-    [SerializeField] private AudioSource buttonClickSource;  //  Button click sound source
+    [SerializeField] private AudioSource gameOverMusicSource;     // Game Over music
+    [SerializeField] private AudioSource buttonClickSource;       // Button click sound source
 
     [SerializeField] private AudioClip menuMusic;
     [SerializeField] private AudioClip gameplayMusic;
@@ -49,21 +50,35 @@ public class GameManager : MonoBehaviour
     {
         if (!canPlay) return;
 
+        // Flipper Controls (Existing Code)
         if (Input.GetKey(KeyCode.A))
         {
-            left.AddTorque(25f);
+            foreach (Rigidbody2D flipper in leftFlippers)
+            {
+                flipper.AddTorque(25f);
+            }
         }
         else
         {
-            left.AddTorque(-20f);
+            foreach (Rigidbody2D flipper in leftFlippers)
+            {
+                flipper.AddTorque(-20f);
+            }
         }
+
         if (Input.GetKey(KeyCode.D))
         {
-            right.AddTorque(-25f);
+            foreach (Rigidbody2D flipper in rightFlippers)
+            {
+                flipper.AddTorque(-25f);
+            }
         }
         else
         {
-            right.AddTorque(20f);
+            foreach (Rigidbody2D flipper in rightFlippers)
+            {
+                flipper.AddTorque(20f);
+            }
         }
     }
 
@@ -93,15 +108,13 @@ public class GameManager : MonoBehaviour
 
     public void GameStart()
     {
-        
+        PlayButtonClickSound();
         highScoreText.SetActive(false);
         startButton.SetActive(false);
         scoreText.SetActive(true);
         Instantiate(ball, startPos, Quaternion.identity);
         canPlay = true;
 
-
-        PlayButtonClickSound();
         PlayMusic(gameplayMusic); // Switch to gameplay music
     }
 
@@ -151,5 +164,4 @@ public class GameManager : MonoBehaviour
             buttonClickSource.PlayOneShot(buttonClickSound);
         }
     }
-
 }
