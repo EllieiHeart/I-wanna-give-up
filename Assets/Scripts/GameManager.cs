@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour   
+public class GameManager : MonoBehaviour
 {
     [SerializeField]
-    GameObject ball,startButton,highScoreText,scoreText,quitButton,restartButton;
+    GameObject ball, startButton, highScoreText, scoreText, quitButton, restartButton;
 
     int score, highScore;
 
@@ -22,9 +22,18 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance;
 
+    [SerializeField]
+    private AudioSource audioSource;  // Audio source for music
+
+    [SerializeField]
+    private AudioClip menuMusic; // Music before game starts
+
+    [SerializeField]
+    private AudioClip gameplayMusic; // Music during gameplay
+
     private void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
         }
@@ -39,12 +48,15 @@ public class GameManager : MonoBehaviour
         highScore = PlayerPrefs.HasKey("HighScore") ? PlayerPrefs.GetInt("HighScore") : 0;
         highScoreText.GetComponent<Text>().text = "HighScore : " + highScore;
         canPlay = false;
+
+        // Play menu music initially
+        PlayMusic(menuMusic);
     }
 
     private void Update()
     {
         if (!canPlay) return;
-        if(Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A))
         {
             left.AddTorque(25f);
         }
@@ -60,7 +72,6 @@ public class GameManager : MonoBehaviour
         {
             right.AddTorque(20f);
         }
-
     }
 
     public void UpdateScore(int point, int mullIncrease)
@@ -76,7 +87,7 @@ public class GameManager : MonoBehaviour
         highScoreText.SetActive(true);
         quitButton.SetActive(true);
         restartButton.SetActive(true);
-        if(score > highScore)
+        if (score > highScore)
         {
             PlayerPrefs.SetInt("HighScore", score);
             highScore = score;
@@ -91,6 +102,9 @@ public class GameManager : MonoBehaviour
         scoreText.SetActive(true);
         Instantiate(ball, startPos, Quaternion.identity);
         canPlay = true;
+
+        // Switch to gameplay music
+        PlayMusic(gameplayMusic);
     }
 
     public void GameQuit()
@@ -104,5 +118,16 @@ public class GameManager : MonoBehaviour
     public void GameRestart()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+    }
+
+    private void PlayMusic(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.Stop(); // Stop any currently playing music
+            audioSource.clip = clip;
+            audioSource.loop = true;
+            audioSource.Play();
+        }
     }
 }
